@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 3.15)
+
+set(CMAKE_PROJECT_NAME lab1)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+project(${CMAKE_PROJECT_NAME})
+
+add_subdirectory(lib)
+
+add_executable(${CMAKE_PROJECT_NAME} ./src/main.cpp)
+target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -std=c++17)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE matrix)
+
