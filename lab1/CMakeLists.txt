@@ -8,7 +8,6 @@ project(${CMAKE_PROJECT_NAME})
 
 add_subdirectory(lib)
 
-add_executable(${CMAKE_PROJECT_NAME} ./src/main.cpp)
-target_compile_options(${CMAKE_PROJECT_NAME} PRIVATE -std=c++20)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE matrix)
+add_executable(${CMAKE_PROJECT_NAME} src/main.cpp)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE matrix utils)
 
