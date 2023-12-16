@@ -2,11 +2,7 @@
 
 #include "utils.hpp"
 
-namespace {
-
-constexpr int kMainProcessRank = 0;
-
-}  // namespace
+static constexpr int kMainProcessRank = 0;
 
 int main() {
   MPI_Init(nullptr, nullptr);
@@ -21,15 +17,11 @@ int main() {
   const auto from = chunk_size * rank;
   const auto to = from + chunk_size;
 
-  const auto coefficients = utils::GetCoefficients(from, to);
+  const auto test_coeffs = utils::GetTestCoeffs(from, to);
+  const auto test_free_coeffs = utils::GetTestFreeCoeffs();
 
-  auto random = (rank == kMainProcessRank ? utils::GenerateRandom()
-                                          : Eigen::VectorXd(utils::kDimension));
-  MPI_Bcast(random.data(), utils::kDimension, MPI_DOUBLE, kMainProcessRank,
-            MPI_COMM_WORLD);
-
-  const auto free_coefficients =
-      utils::GetFreeCoefficientsRandom(random, coefficients);
+  const auto solution =
+      utils::CaclculateSolution(test_coeffs, test_free_coeffs, from, to);
 
   // TODO
 
