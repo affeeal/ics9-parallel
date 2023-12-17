@@ -1,29 +1,40 @@
 #include <mpi.h>
 
-#include "utils.hpp"
+#include <cassert>
+#include <eigen3/Eigen/Eigen>
 
-static constexpr int kMainProcessRank = 0;
+#include "utils.hpp"
 
 int main() {
   MPI_Init(nullptr, nullptr);
 
-  auto size = 0;
-  MPI_Comm_size(MPI_COMM_WORLD, &size);
+  auto comm_size = 0;
+  MPI_Comm_size(MPI_COMM_WORLD, &comm_size);
 
-  auto rank = 0;
-  MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  auto comm_rank = 0;
+  MPI_Comm_rank(MPI_COMM_WORLD, &comm_rank);
 
-  const auto chunk_size = utils::kDimension / size;
-  const auto from = chunk_size * rank;
-  const auto to = from + chunk_size;
+  const auto slice_size = utils::kDimension / comm_size;
+  const auto from = slice_size * comm_rank;
+  const auto to = from + slice_size;
 
-  const auto test_coeffs = utils::GetTestCoeffs(from, to);
-  const auto test_free_coeffs = utils::GetTestFreeCoeffs();
+  const auto coeffs_slice = utils::GetTestCoeffsSlice(from, to);
+  const auto free_coeffs = utils::GetTestFreeCoeffs();
 
   const auto solution =
-      utils::CaclculateSolution(test_coeffs, test_free_coeffs, from, to);
+      utils::CalculateSolution(coeffs_slice, free_coeffs, from, to);
 
-  // TODO
+  const auto free_coeffs_slice = free_coeffs(Eigen::seq(from, to - 1));
+
+  const auto solution_slice =
+      utils::CalculateSolutionSlice(coeffs_slice, free_coeffs_slice, from, to);
+
+  Eigen::VectorXd assembled_solution(utils::kDimension);
+  MPI_Allgather(solution_slice.data(), solution_slice.size(), MPI_DOUBLE,
+                assembled_solution.data(), solution_slice.size(), MPI_DOUBLE,
+                MPI_COMM_WORLD);
+
+  assert(solution == assembled_solution);
 
   MPI_Finalize();
 
