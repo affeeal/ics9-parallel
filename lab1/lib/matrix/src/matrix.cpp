@@ -10,7 +10,7 @@ namespace {
 const int kLowerBound = -128;
 const int kUpperBound = 127;
 
-}  // namespace
+} // namespace
 
 Matrix::Matrix(const std::size_t rows_count, const std::size_t columns_count)
     : rows_count(rows_count), columns_count(columns_count) {
@@ -84,4 +84,4 @@ void MultiplyInChunk(Matrix &result, const Matrix &first, const Matrix &second,
   }
 }
 
-}  // namespace matrix
+} // namespace matrix

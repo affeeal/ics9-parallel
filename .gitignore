@@ -1,4 +1,5 @@
 build
+release
 .cache
 .clang-format
 target

@@ -25,7 +25,7 @@ const auto kRightForkWaitingMax = 10;
 
 void Cout(std::mutex &cout_mutex, std::string_view message) {
   std::lock_guard<std::mutex> cout_lock{cout_mutex};
-  std::cout << message; 
+  std::cout << message;
 }
 
 } // namespace

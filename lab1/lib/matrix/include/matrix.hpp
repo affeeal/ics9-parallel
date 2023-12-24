@@ -16,15 +16,15 @@ struct Matrix {
   void FillWithRandomNumbers();
   void Print() const;
 
-  bool operator==(const Matrix& other) const;
+  bool operator==(const Matrix &other) const;
 };
 
-Matrix MultiplyByRows(const Matrix& first, const Matrix& second);
+Matrix MultiplyByRows(const Matrix &first, const Matrix &second);
 
-Matrix MultiplyByColumns(const Matrix& first, const Matrix& second);
+Matrix MultiplyByColumns(const Matrix &first, const Matrix &second);
 
-void MultiplyInChunk(Matrix& result, const Matrix& first, const Matrix& second,
+void MultiplyInChunk(Matrix &result, const Matrix &first, const Matrix &second,
                      const std::size_t row, const std::size_t column,
                      const std::size_t chunk_size);
 
-}  // namespace matrix
+} // namespace matrix

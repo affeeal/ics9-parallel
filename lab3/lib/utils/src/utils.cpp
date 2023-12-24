@@ -9,8 +9,8 @@ namespace utils {
 
 namespace {
 
-double CalculateError(const Eigen::VectorXd& solution, const Matrix& coeffs,
-                      const Eigen::VectorXd& free_coeffs) {
+double CalculateError(const Eigen::VectorXd &solution, const Matrix &coeffs,
+                      const Eigen::VectorXd &free_coeffs) {
   Eigen::VectorXd approximation(kDimension);
 
 #pragma omp parallel for
@@ -21,7 +21,7 @@ double CalculateError(const Eigen::VectorXd& solution, const Matrix& coeffs,
   return approximation.norm() / free_coeffs.norm();
 }
 
-}  // namespace
+} // namespace
 
 Matrix GetTestCoeffs() {
   Matrix coeffs(kDimension, kDimension);
@@ -43,8 +43,8 @@ Eigen::VectorXd GetTestFreeCoeffs() {
   return free_coeffs;
 }
 
-Eigen::VectorXd CalculateSolution(const Matrix& coeffs,
-                                  const Eigen::VectorXd& free_coeffs) {
+Eigen::VectorXd CalculateSolution(const Matrix &coeffs,
+                                  const Eigen::VectorXd &free_coeffs) {
   Eigen::VectorXd solution(kDimension);
   solution.setZero();
 
@@ -65,11 +65,11 @@ Eigen::VectorXd CalculateSolution(const Matrix& coeffs,
 
     new_error = CalculateError(solution, coeffs, free_coeffs);
     if (new_error > error) {
-      velocity *= -1;  // happens once at most
+      velocity *= -1; // happens once at most
     }
   }
 
   return solution;
 }
 
-}  // namespace utils
+} // namespace utils

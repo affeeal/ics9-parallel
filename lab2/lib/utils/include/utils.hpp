@@ -9,23 +9,19 @@ using Matrix =
 
 constexpr int kMainProcessRank = 0;
 
-constexpr int kDimension = 3000;
+constexpr int kDimension = 20000;
 constexpr double kEpsilon = 1e-5;
 
 Matrix GetTestCoeffsSlice(const int from, const int to);
 
 Eigen::VectorXd GetTestFreeCoeffs();
 
-Eigen::VectorXd GetRandomVector();
-Eigen::VectorXd GetRandomFreeCoeffs(const Eigen::VectorXd& random,
-                                    const Matrix& coeffs);
-
-Eigen::VectorXd CalculateSolution(const Matrix& coeffs_slice,
-                                  const Eigen::VectorXd& free_coeffs,
+Eigen::VectorXd CalculateSolution(const Matrix &coeffs_slice,
+                                  const Eigen::VectorXd &free_coeffs,
                                   const int from, const int to);
 
-Eigen::VectorXd CalculateSolutionSlice(const Matrix& coeffs_slice,
-                                       const Eigen::VectorXd& free_coeffs_slice,
+Eigen::VectorXd CalculateSolutionSlice(const Matrix &coeffs_slice,
+                                       const Eigen::VectorXd &free_coeffs_slice,
                                        const int from, const int to);
 
-}  // namespace utils
+} // namespace utils

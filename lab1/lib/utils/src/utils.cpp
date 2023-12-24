@@ -56,4 +56,4 @@ matrix::Matrix MultiplyByChunksWithTiming(const matrix::Matrix &first,
   return result;
 }
 
-}  // namespace utils
+} // namespace utils

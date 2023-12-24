@@ -9,15 +9,13 @@ namespace utils {
 
 namespace {
 
-std::mt19937 generator(std::random_device{}());
-std::uniform_real_distribution<double> distribution(-1.0, 1.0);
-
-double GetErrorRate(const Eigen::VectorXd& solution, const Matrix& coeffs,
-                    const Eigen::VectorXd& free_coeffs) {
+// TODO: parallel numerator calculating
+double GetErrorRate(const Eigen::VectorXd &solution, const Matrix &coeffs,
+                    const Eigen::VectorXd &free_coeffs) {
   return (coeffs * solution - free_coeffs).norm() / free_coeffs.norm();
 }
 
-}  // namespace
+} // namespace
 
 Matrix GetTestCoeffsSlice(const int from, const int to) {
   Matrix coeffs(to - from, kDimension);
@@ -39,23 +37,8 @@ Eigen::VectorXd GetTestFreeCoeffs() {
   return free_coeffs;
 }
 
-Eigen::VectorXd GetRandomVector() {
-  Eigen::VectorXd random(kDimension);
-
-  for (auto& value : random) {
-    value = distribution(generator);
-  }
-
-  return random;
-}
-
-Eigen::VectorXd GetRandomFreeCoeffs(const Eigen::VectorXd& random,
-                                    const Matrix& coeffs_slice) {
-  return coeffs_slice * random;
-}
-
-Eigen::VectorXd CalculateSolution(const Matrix& coeffs_slice,
-                                  const Eigen::VectorXd& free_coeffs,
+Eigen::VectorXd CalculateSolution(const Matrix &coeffs_slice,
+                                  const Eigen::VectorXd &free_coeffs,
                                   const int from, const int to) {
   Eigen::VectorXd solution(kDimension);
   solution.setZero();
@@ -80,7 +63,7 @@ Eigen::VectorXd CalculateSolution(const Matrix& coeffs_slice,
 
     const auto new_error_rate = GetErrorRate(solution, coeffs, free_coeffs);
     if (new_error_rate > error_rate) {
-      velocity *= -1;  // happens once at most
+      velocity *= -1; // happens once at most
     }
 
     error_rate = new_error_rate;
@@ -89,8 +72,8 @@ Eigen::VectorXd CalculateSolution(const Matrix& coeffs_slice,
   return solution;
 }
 
-Eigen::VectorXd CalculateSolutionSlice(const Matrix& coeffs_slice,
-                                       const Eigen::VectorXd& free_coeffs_slice,
+Eigen::VectorXd CalculateSolutionSlice(const Matrix &coeffs_slice,
+                                       const Eigen::VectorXd &free_coeffs_slice,
                                        const int from, const int to) {
   Eigen::VectorXd solution_slice(to - from);
   solution_slice.setZero();
@@ -118,7 +101,7 @@ Eigen::VectorXd CalculateSolutionSlice(const Matrix& coeffs_slice,
 
     const auto new_error_rate = GetErrorRate(solution, coeffs, free_coeffs);
     if (new_error_rate > error_rate) {
-      velocity *= -1;  // happens once at most
+      velocity *= -1; // happens once at most
     }
 
     error_rate = new_error_rate;
@@ -127,4 +110,4 @@ Eigen::VectorXd CalculateSolutionSlice(const Matrix& coeffs_slice,
   return solution_slice;
 }
 
-}  // namespace utils
+} // namespace utils
