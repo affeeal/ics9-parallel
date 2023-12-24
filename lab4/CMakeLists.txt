@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 20)
 project(${CMAKE_PROJECT_NAME})
 
 find_package(Boost 1.74 COMPONENTS program_options REQUIRED)
+find_package(fmt REQUIRED)
 
 add_subdirectory(lib)
 

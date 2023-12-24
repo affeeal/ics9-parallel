@@ -1,28 +1,46 @@
 #include "utils.hpp"
 
 #include <cassert>
+
 #include <iostream>
 #include <mutex>
 #include <random>
 #include <thread>
 #include <vector>
 
+#include <fmt/format.h>
+
 namespace utils {
 
 using namespace std::chrono_literals;
 
-static const auto kMainThreadSleepTime = 30s;
-static const auto kPhilosophersWaitSecondsMin = 0;
-static const auto kPhilosophersWaitSecondsMax = 5;
+namespace {
+
+const auto kMainThreadSleepTime = 30s;
+
+const auto kActionPerformingMin = 0;
+const auto kActionPerformingMax = 5;
+const auto kRightForkWaitingMin = 6;
+const auto kRightForkWaitingMax = 10;
+
+void Cout(std::mutex &cout_mutex, std::string_view message) {
+  std::lock_guard<std::mutex> cout_lock{cout_mutex};
+  std::cout << message; 
+}
+
+} // namespace
 
 void Perform(const int count) {
   assert(count >= kPhilosophersMinCount);
 
   std::mt19937 generator(std::random_device{}());
-  std::uniform_int_distribution<int> distribution(kPhilosophersWaitSecondsMin,
-                                                  kPhilosophersWaitSecondsMax);
+  std::uniform_int_distribution<int> action_performing(kActionPerformingMin,
+                                                       kActionPerformingMax);
+  std::uniform_int_distribution<int> right_fork_waiting(kRightForkWaitingMin,
+                                                        kRightForkWaitingMax);
+  std::mutex cout_mutex;
 
-  std::vector<std::mutex> forks(count);
+  std::vector<std::timed_mutex> forks(count);
 
   std::vector<std::thread> threads;
   threads.reserve(count);
@@ -36,34 +54,50 @@ void Perform(const int count) {
 
       while (should_countinue) {
         const auto thinking_time =
-            std::chrono::duration<int>(distribution(generator));
-        std::cout << "Philosopher " << i << " thinks for "
-                  << thinking_time.count() << '\n';
+            std::chrono::duration<int>(action_performing(generator));
+        Cout(cout_mutex, fmt::format("Philosopher {} thinks for {} seconds\n",
+                                     i, thinking_time.count()));
         std::this_thread::sleep_for(thinking_time);
 
-        std::cout << "Philosopher " << i << " tries to take left fork "
-                  << left_fork << '\n';
-        std::lock_guard<std::mutex> left_fork_mutex{forks[left_fork]};
+        Cout(cout_mutex,
+             fmt::format("Philosopher {} tries to take left fork {}\n", i,
+                         left_fork));
+        std::unique_lock<std::timed_mutex> left_fork_mutex{forks[left_fork]};
 
-        std::cout << "Philosopher " << i << " tries to take right fork "
-                  << right_fork << '\n';
-        std::lock_guard<std::mutex> right_fork_mutex{forks[right_fork]};
+        const auto right_fork_waiting_time =
+            std::chrono::duration<int>(right_fork_waiting(generator));
+        Cout(cout_mutex,
+             fmt::format(
+                 "Philosopher {} tries to take right fork {} for {} seconds\n",
+                 i, right_fork, right_fork_waiting_time.count()));
+        std::unique_lock<std::timed_mutex> right_fork_mutex{
+            forks[right_fork], right_fork_waiting_time};
+
+        if (!right_fork_mutex.owns_lock()) {
+          Cout(cout_mutex,
+               fmt::format("Philosopher {} releases left fork {} because he "
+                           "couldn't take right fork {}\n",
+                           i, left_fork, right_fork));
+          left_fork_mutex.unlock();
+          continue;
+        }
 
         const auto meal_time =
-            std::chrono::duration<int>(distribution(generator));
-        std::cout << "Philosopher " << i << " eats for " << meal_time.count()
-                  << '\n';
+            std::chrono::duration<int>(action_performing(generator));
+        Cout(cout_mutex, fmt::format("Philosopher {} eats for {} seconds\n", i,
+                                     meal_time.count()));
         std::this_thread::sleep_for(meal_time);
 
-        std::cout << "Philosopher " << i << " releases forks " << left_fork
-                  << " and " << right_fork << '\n';
+        Cout(cout_mutex,
+             fmt::format("Philosopher {} releases forks {} and {}\n", i,
+                         left_fork, right_fork));
       }
     }});
   }
 
   std::this_thread::sleep_for(kMainThreadSleepTime);
 
-  std::cout << "should_countinue is false now\n";
+  Cout(cout_mutex, "Flag should_countinue is set to false\n");
   should_countinue = false;
 
   for (auto &t : threads) {

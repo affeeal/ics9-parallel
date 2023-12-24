@@ -12,7 +12,7 @@ int main(int argc, char *argv[]) {
   po::options_description desc("Allowed options");
   desc.add_options()("help", "produce help message")(
       "count", po::value<int>(&count)->default_value(5),
-      "set philosopers count");
+      "set philosophers count");
 
   po::variables_map vars_map;
   po::store(po::parse_command_line(argc, argv, desc), vars_map);
